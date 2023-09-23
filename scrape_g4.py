@@ -5,7 +5,7 @@ import requests
 import pandas as pd
 
 
-def get_writer_translators_description(url):
+def get_writer_translators_book_description(url):
     
     # Search the blocks for all author and translator links
     def get_person_links(soup):
@@ -66,24 +66,6 @@ def get_writer_translators_description(url):
     return df_person, df_book
 
 
-def get_book_description(url):
-    book_id = url.split("/")[-1].split("-")[0]
-
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    description_div = soup.find("div", class_="product-description")
-
-    if description_div:
-        book_description = description_div.text.strip()
-    else:
-        book_description = None
-
-    print(f"book_id: {book_id}")
-    print(f"book_description: {book_description}")
-    return
-
-
 def get_hashtags_details(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -115,14 +97,13 @@ def get_hashtags_details(url):
 
     df_hashtags = pd.DataFrame(details_list)
     
-    
     return df_hashtags
 
 
 # Try it out
 url = "https://www.iranketab.ir/book/1007-man-s-search-for-meaning"
 
-df_writer_translators, df_book_desc = get_writer_translators_description(url)
+df_writer_translators, df_book_desc = get_writer_translators_book_description(url)
 df_categories = get_hashtags_details(url)
 
 print(f"writers & translators:\n{df_writer_translators}")
