@@ -18,6 +18,7 @@ def list_link_books(url,count):
         url (_str_):  url site
         count (_int_): count url book its a multiple 1000
     """
+    books_links = []
     fields = ["book_url"]
     with open("book_url.csv", "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
@@ -40,11 +41,16 @@ def list_link_books(url,count):
             try:
                 book_tag_a = book.find('a',attrs={'class':'product-item-link'})
                 book_url ='https://www.iranketab.ir'+ book_tag_a.get('href')
-                book_url =[book_url]
-                with open('book_url.csv', 'a',newline='') as f:
-                    writer = csv.writer(f)
-                    writer.writerow(book_url)
+                books_links.append(book_url)
             except:
                 logging.warning(f'failed to find url book[{pagenumber},{i}]')
             print(i)
-results = list_link_books(url,50000)
+
+    books_links = set(books_links)
+    for  link in books_links:
+        with open('book_url.csv', 'a',newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([link])
+    
+
+results = list_link_books(url,100000)
