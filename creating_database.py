@@ -53,7 +53,7 @@ person = Table(
     'person', meta,
     Column('id', Integer, primary_key=True),
     Column('name', String(50)),
-    Column('describe', String(500))
+    Column('description', String(500))
 )
 
 #publisher
@@ -67,7 +67,8 @@ publisher = Table(
 category = Table(
     'category', meta,
     Column('id', Integer, primary_key=True),
-    Column('name', String(50))
+    Column('name', String(50)),
+    Column('description', String(500))
 )
 
 #group_category
@@ -83,7 +84,7 @@ group_describe = Table(
     'group_describe', meta,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('group_id', Integer, ForeignKey('group.id')),
-    Column('describe', String(500))
+    Column('description', String(500))
 )
 
 #book_publisher
