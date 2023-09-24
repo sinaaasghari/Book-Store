@@ -45,7 +45,15 @@ book = Table(
 group = Table(
     'group', meta,
     Column('id', Integer, primary_key=True),
-    Column('book_code', Integer, ForeignKey('book.code'))
+    Column('description', String(500))
+)
+
+#group_book
+group_book = Table(
+    'group_book', meta,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('group_id', Integer, ForeignKey('group.id')),
+    Column('describe', String(500))
 )
 
 #person
@@ -77,14 +85,6 @@ group_category = Table(
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('group_id', Integer, ForeignKey('group.id')),
     Column('category_id', Integer, ForeignKey('category.id'))
-)
-
-#group_describe
-group_describe = Table(
-    'group_describe', meta,
-    Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('group_id', Integer, ForeignKey('group.id')),
-    Column('description', String(500))
 )
 
 #book_publisher
