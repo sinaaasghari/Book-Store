@@ -30,7 +30,7 @@ book = Table(
     Column('price', Integer),
     Column('discount', Integer),
     Column('grade', Integer),
-    Column('shabak', Integer),
+    Column('shabak', String(30)),
     Column('page_count', Integer),
     Column('release_year_sh', Integer),
     Column('release_year_mi', Integer),
