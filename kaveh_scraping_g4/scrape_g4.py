@@ -50,9 +50,6 @@ def get_writer_translators_book_description(url):
     # Create dataframe for book descriptions
     book_id = url.split("/")[-1].split("-")[0]
 
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
-
     description_div = soup.find("div", class_="product-description")
 
     if description_div:
