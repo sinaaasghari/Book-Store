@@ -157,21 +157,25 @@ def mge_jnge(url_main, soup):
                 match_writer_id = re.search(r'(\d+)', sublist)
                 number_writer_id = int(match_writer_id.group(1))
                 w_id.append(number_writer_id)
-            df.loc[0,'writer_id'] = w_id
+                if len(w_id) == 0:
+                    df.loc[0,'writer_id'] = [np.nan]
+                else:
+                    df.loc[0,'writer_id'] = w_id
         except:
             df.loc[0,'writer_id'] = ''
         #translator_id
-        try:
+        for j in i.select('tr:nth-child(2) td+ td'):
             tr_id = []
-            translator_id_each_rows = i.select('tr:nth-child(2) td+ td a')
-            translator_id_each_row = [name.get('href') for name in translator_id_each_rows]
-            for sublist in translator_id_each_row:
-                match_translator_id = re.search(r'(\d+)', sublist)
-                number_translator_id= int(match_translator_id.group(1))
-                tr_id.append(number_translator_id)
-            df.loc[0,'translator_id'] = tr_id
-        except:
-            df.loc[0,'translator_id'] = ''
+            span_tags = j.find_all('span')
+            for tag in span_tags:
+                    up = tag.parent
+                    if up.name == 'a':
+                        match_translator_id = re.search(r'(\d+)', up.get('href'))
+                        number_translator_id= int(match_translator_id.group(1))
+                        tr_id.append(number_translator_id)
+                    else:
+                        tr_id.append(np.nan)
+        df.at[0,'translator_id'] = tr_id
             
         #category_id
         try:
