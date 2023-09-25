@@ -23,7 +23,7 @@ with open(csv_file, 'r') as file:
     for row in csv_reader:
         links.append(row[0])
 
-links = list(set(links[1:11]))
+links = list(set(links[9:10]))
 
 #header of each request
 headers = {"Accept-Language": "en-US,en;q=0.5",
@@ -44,18 +44,20 @@ df_iraniketab = pd.DataFrame(columns=['title_persian','title_english','price','d
                                 'print_serie', 'publisher_name','category','ghate','cover', 'writer',
                                 'translator','book_id','writer_id','translator_id','category_id','publisher_id'])
 
-
+person_urls_list = list()
+category_urls_list = list()
 #=================================================================================================================
 #Getting each page details
 #getting description
 def get_detail(link):
-    global df_iraniketab, df_group, df_category, df_person_description
+    global df_iraniketab, df_group, df_category, df_person_description, person_urls_list, category_urls_list
     response = requests.get(link, headers=headers, timeout=timeout)
     soup = BeautifulSoup(response.content, "html.parser")    
 
-
     #run functions
-    df_hashtags, df_book1, df_person_book = cf.get_description(link, soup)
+    df_hashtags, df_book1, df_person_book, book_person_urls_list, book_category_urls_list = cf.get_description(link, soup, person_urls_list, category_urls_list)
+    person_urls_list.append(book_person_urls_list)
+    category_urls_list.append(book_category_urls_list)
     #inserting data into dataframes 
     #inserting data into group df
     df_group = pd.concat([df_group, df_book1])
