@@ -52,14 +52,14 @@ group = Table(
 group_book = Table(
     'group_book', meta,
     Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('group_id', Integer, ForeignKey('group.id')),
-    Column('describe', String(500))
+    Column('group_id', Integer, ForeignKey('group.id'))
 )
 
 #person
 person = Table(
     'person', meta,
-    Column('id', Integer, primary_key=True),
+    Column('counter', Identity, primary_key=True),
+    Column('person_id', Integer),
     Column('name', String(50)),
     Column('description', String(500))
 )
