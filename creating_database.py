@@ -59,7 +59,7 @@ group_book = Table(
 person = Table(
     'person', meta,
     Column('counter', Identity, primary_key=True),
-    Column('person_id', Integer),
+    Column('id', Integer),
     Column('name', String(50)),
     Column('description', String(500))
 )
@@ -100,7 +100,7 @@ crew = Table(
     'crew', meta,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('book_code', Integer, ForeignKey('book.code')),
-    Column('person_id', Integer, ForeignKey('person.id')),
+    Column('person_counter', Integer, ForeignKey('person.id')),
     Column('role', String(15))
 )
 
