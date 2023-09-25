@@ -150,7 +150,8 @@ df_group_book = pd.DataFrame({'group_id': df_iraniketab['book_id'].values.tolist
                               'book_code': df_iraniketab['code'].values.tolist()})
 
 
-
+#group_category
+df_group_category = pd.DataFrame(columns=['group_id', 'category_id'])
 
 for index in range(len(df_iraniketab.index)):
     publisher_name_list.append(df_iraniketab.loc[index, 'publisher_name'])
@@ -158,6 +159,8 @@ for index in range(len(df_iraniketab.index)):
     for category in df_iraniketab.loc[index, 'category']:
         category_list.append(category)
     for category_id in df_iraniketab.loc[index, 'category_id']:
+        new_dict = {'group_id': df_iraniketab.loc[index, 'book_id'],
+                    'category_id': category_id}
         category_id_list.append(category_id) 
 
     #person
@@ -174,10 +177,30 @@ for index in range(len(df_iraniketab.index)):
         person_id_list.append(translator_id)
 
 print(len(person_id_list), len(person_name_list))
-
+#publisher_df
 df_publisher = pd.DataFrame({'id': publisher_id_list, 'name': publisher_name_list})
+
+#person_df
 df_person = pd.DataFrame({'person_id': person_id_list, 'name': person_name_list})
 df_person = pd.merge(df_person, df_person_description, how='left', on='id')
+df_person.drop_duplicates(inplace=True)
+df_person['counter'] = np.arange(0, len(df_person['name'].values.tolist()))
+
+
+#crew 
+df_crew = pd.DataFrame(columns=['book_code', 'person_counter', 'role'])
+for index in range(len(df_iraniketab.index)):
+    for writer_name in df_iraniketab.loc[index, 'writer']:
+        new_dict = {'book_code': df_iraniketab.loc[index, 'code'],
+                    'person_counter': df_person.loc[df_person['name'] == writer_name]['name'].values.tolist()[0],
+                    'role': 'writer'}
+        df_crew = df_crew._append(new_dict, ignore_index=True)
+    for translator_name in df_iraniketab.loc[index, 'translator']:
+        new_dict = {'book_code': df_iraniketab.loc[index, 'code'],
+                    'person_counter': df_person.loc[df_person['name'] == translator_name]['name'].values.tolist()[0],
+                    'role': 'translator'}
+        df_crew = df_crew._append(new_dict, ignore_index=True)
+df_crew.drop_duplicates(inplace=True)
 
 
 #=======================================================================================
@@ -189,5 +212,8 @@ df_iraniketab.to_csv('iraniketab.csv', index=False, encoding='utf-8-sig')
 #df_book.to_csv('book.csv', index=False, encoding='utf-8-sig')
 # df_group_book.to_csv('group_book.csv', index=False, encoding='utf-8-sig')
 df_person.to_csv('person.csv', index=False, encoding='utf-8-sig')
+df_crew.to_csv('crew.csv', index=False, encoding='utf-8-sig')
+df_publisher.to_csv('publisher.csv', index=False, encoding='utf-8-sig')
+df_group_category.to_csv('group_category.csv', index=False, encoding='utf-8-sig')
 
 print("Done!")
