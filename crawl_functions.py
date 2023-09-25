@@ -296,7 +296,6 @@ def get_description(url, soup, linkp_list, hashtag_urls_list):
     for name, link in persons.items():
         linkp = f"https://www.iranketab.ir{link}"
         if linkp not in linkp_list:
-            print("==============================")
             linkp_list.append(linkp)
             person_response = requests.get(linkp)
             person_soup = BeautifulSoup(person_response.content, "html.parser")
@@ -338,7 +337,6 @@ def get_description(url, soup, linkp_list, hashtag_urls_list):
     for link in tag_links:
         hashtag_url = f"https://www.iranketab.ir{link['href']}"
         if hashtag_url not in hashtag_urls_list:
-            print("+++++++++++++++++++++++++++++")
             hashtag_urls_list.append(hashtag_url)
             hashtag_response = requests.get(hashtag_url)
             hashtag_soup = BeautifulSoup(hashtag_response.content, "html.parser")
