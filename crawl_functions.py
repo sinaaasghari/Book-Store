@@ -162,7 +162,7 @@ def mge_jnge(url_main, soup):
                 else:
                     df.loc[0,'writer_id'] = w_id
         except:
-            df.loc[0,'writer_id'] = ''
+            df.loc[0,'writer_id'] = []
         #translator_id
         for j in i.select('tr:nth-child(2) td+ td'):
             tr_id = []

@@ -23,7 +23,7 @@ with open(csv_file, 'r') as file:
     for row in csv_reader:
         links.append(row[0])
 
-links = list(set(links[9:10]))
+links = list(set(links[65100:65200]))
 
 #header of each request
 headers = {"Accept-Language": "en-US,en;q=0.5",
@@ -49,8 +49,10 @@ category_urls_list = list()
 #=================================================================================================================
 #Getting each page details
 #getting description
+i = 1
 def get_detail(link):
-    global df_iraniketab, df_group, df_category, df_person_description, person_urls_list, category_urls_list
+    global df_iraniketab, df_group, df_category, df_person_description, person_urls_list, category_urls_list, i
+    print(i)
     response = requests.get(link, headers=headers, timeout=timeout)
     soup = BeautifulSoup(response.content, "html.parser")    
 
@@ -71,6 +73,9 @@ def get_detail(link):
 
     main_df = cf.mge_jnge(link, soup)
     df_iraniketab = pd.concat([df_iraniketab, main_df])
+    
+    i += 1
+
     return response
 
 
@@ -82,7 +87,7 @@ count_of_request = 1000
 workers = 100
 sleep_time = 1
 timeout = 30
-max_count = math.ceil((len(links)*1.5) / count_of_request)
+max_count = math.ceil((len(links)*1.2) / count_of_request)
 
 count = 0
 out = list()
@@ -107,6 +112,8 @@ while (len(links)) and (count < max_count):
             url = result.url.lower()
             if url in links:
                 links.remove(url)
+    
+    print(count)
     count += 1
 
 
@@ -137,10 +144,17 @@ person_id_list = list()
 group_id_list = list()
 book_code_list = list()
 #------------------------------------------------------------------------------------------------------------
+print("crawl done!")
 #inserting into dataframes
 #book
 df_iraniketab.rename(columns={'exist_bolean': 'exist', 'count_page': 'page_count', 'print_serie': 'print_series', 'realese_year_sh': 'release_year_sh'}, inplace=True)
 df_iraniketab.reset_index(drop=False, inplace=True)
+
+df_iraniketab.to_csv('iraniketab.csv', index=False, encoding='utf-8-sig')
+
+
+
+
 df_book = df_iraniketab[['code', 'title_persian','title_english','price','discount','grade','code','shabak',
                                 'page_count','release_year_sh','release_year_mi','exist','earliest_access',
                                 'print_series', 'ghate', 'cover']]
@@ -156,28 +170,37 @@ df_group_book = pd.DataFrame({'group_id': df_iraniketab['book_id'].values.tolist
 df_group_category = pd.DataFrame(columns=['group_id', 'category_id'])
 
 for index in range(len(df_iraniketab.index)):
-    publisher_name_list.append(df_iraniketab.loc[index, 'publisher_name'])
-    publisher_id_list.append(df_iraniketab.loc[index, 'publisher_id'][0])
-    for category in df_iraniketab.loc[index, 'category']:
-        category_list.append(category)
-    for category_id in df_iraniketab.loc[index, 'category_id']:
-        new_dict = {'group_id': df_iraniketab.loc[index, 'book_id'],
-                    'category_id': category_id}
-        df_group_category = df_group_category._append(new_dict, ignore_index=True)
-        category_id_list.append(category_id) 
+    print(df_iraniketab.loc[index, 'code'])
+    try:
+        publisher_name_list.append(df_iraniketab.loc[index, 'publisher_name'])
+        publisher_id_list.append(df_iraniketab.loc[index, 'publisher_id'][0])
+    except: continue
+    try:
+        for category in df_iraniketab.loc[index, 'category']:
+            category_list.append(category)
+        for category_id in df_iraniketab.loc[index, 'category_id']:
+            new_dict = {'group_id': df_iraniketab.loc[index, 'book_id'],
+                        'category_id': category_id}
+            df_group_category = df_group_category._append(new_dict, ignore_index=True)
+            category_id_list.append(category_id) 
+    except: continue
 
     #person
-    for writer in df_iraniketab.loc[index, 'writer']:
-        person_name_list.append(writer)
+    try:
+        for writer in df_iraniketab.loc[index, 'writer']:
+            person_name_list.append(writer)
 
-    for writer_id in df_iraniketab.loc[index, 'writer_id']:
-        person_id_list.append(writer_id)
-    
-    for translator in df_iraniketab.loc[index, 'translator']:
-        person_name_list.append(translator)
+        for writer_id in df_iraniketab.loc[index, 'writer_id']:
+            person_id_list.append(writer_id)
+    except: continue
 
-    for translator_id in df_iraniketab.loc[index, 'translator_id']:
-        person_id_list.append(translator_id)
+    try:
+        for translator in df_iraniketab.loc[index, 'translator']:
+            person_name_list.append(translator)
+
+        for translator_id in df_iraniketab.loc[index, 'translator_id']:
+            person_id_list.append(translator_id)
+    except: continue
 
 #publisher_df
 df_publisher = pd.DataFrame({'id': publisher_id_list, 'name': publisher_name_list})
@@ -194,15 +217,19 @@ df_person['counter'] = np.arange(0, len(df_person['name'].values.tolist()))
 df_crew = pd.DataFrame(columns=['book_code', 'person_counter', 'role'])
 for index in range(len(df_iraniketab.index)):
     for writer_name in df_iraniketab.loc[index, 'writer']:
-        new_dict = {'book_code': df_iraniketab.loc[index, 'code'],
-                    'person_counter': df_person.loc[df_person['name'] == writer_name]['counter'].values.tolist()[0],
-                    'role': 'writer'}
-        df_crew = df_crew._append(new_dict, ignore_index=True)
+        try:
+            new_dict = {'book_code': df_iraniketab.loc[index, 'code'],
+                        'person_counter': df_person.loc[df_person['name'] == writer_name]['counter'].values.tolist()[0],
+                        'role': 'writer'}
+            df_crew = df_crew._append(new_dict, ignore_index=True)
+        except: continue
     for translator_name in df_iraniketab.loc[index, 'translator']:
-        new_dict = {'book_code': df_iraniketab.loc[index, 'code'],
-                    'person_counter': df_person.loc[df_person['name'] == translator_name]['counter'].values.tolist()[0],
-                    'role': 'translator'}
-        df_crew = df_crew._append(new_dict, ignore_index=True)
+        try:
+            new_dict = {'book_code': df_iraniketab.loc[index, 'code'],
+                        'person_counter': df_person.loc[df_person['name'] == translator_name]['counter'].values.tolist()[0],
+                        'role': 'translator'}
+            df_crew = df_crew._append(new_dict, ignore_index=True)
+        except: continue
 df_crew.drop_duplicates(inplace=True)
 
 
