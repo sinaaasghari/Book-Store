@@ -159,7 +159,7 @@ def mge_jnge(url_main, soup):
                 w_id.append(number_writer_id)
             df.loc[0,'writer_id'] = w_id
         except:
-            df.loc[0,'writer_id'] = np.nan
+            df.loc[0,'writer_id'] = ''
         #translator_id
         try:
             tr_id = []
@@ -171,7 +171,7 @@ def mge_jnge(url_main, soup):
                 tr_id.append(number_translator_id)
             df.loc[0,'translator_id'] = tr_id
         except:
-            df.loc[0,'translator_id'] = np.nan
+            df.loc[0,'translator_id'] = ''
             
         #category_id
         try:
