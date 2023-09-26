@@ -255,6 +255,7 @@ df_book.drop_duplicates(inplace=True)
 
 #person_df
 df_person_description['id'] = df_person_description['id'].astype('float64')
+df_person['id'] = df_person['id'].astype('float64')
 df_person = pd.merge(df_person, df_person_description[['id', 'description']], how='left', on='id')
 df_person['counter'] = np.arange(0, len(df_person['name'].values.tolist()))
 df_crew.reset_index(drop=True, inplace=True)
