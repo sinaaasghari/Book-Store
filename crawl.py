@@ -268,7 +268,7 @@ for index in df_crew.index.values.tolist():
             df_crew.loc[index, 'name'] = df_person.loc[df_person.loc[df_person['name'] == name[0]].index.values.tolist()[0], 'counter']
         except:
             df_crew.drop([index], axis=0, inplace=True)
-df_crew.rename(columns={'name': 'counter'}, inplace=True)
+df_crew.rename(columns={'name': 'person_counter'}, inplace=True)
 
 
 
