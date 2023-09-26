@@ -105,5 +105,3 @@ crew = Table(
 )
 
 meta.create_all(engine)
-
-
