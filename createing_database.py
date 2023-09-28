@@ -7,10 +7,10 @@ from sqlalchemy import Table, Column, Integer, String, BOOLEAN, DATE, ForeignKey
 #Creating Database,Connection
 meta = MetaData()
 USERNAME = 'root'
-PASSWORD = 'A1382L1234i@#'
+PASSWORD = '13771377Mnn@'
 SERVER = 'localhost'
 PORT = 3306
-DATABASE = 'book-store'
+DATABASE = 'Book'
 
 url_object = URL.create("mysql+mysqlconnector",
                         username=USERNAME,
