@@ -275,16 +275,33 @@ def mge_jnge(url_main, soup):
 def get_description(url, soup, linkp_list, hashtag_urls_list):
     # Search the blocks for all author and translator links
     def get_person_links(soup):
-        blocks = soup.find_all("div", class_="clearfix")
+        if soup is None:
+            print("Soup is empty!")
+            return 0
+
+        containers = soup.find_all("div", class_="product-container well clearfix")
+        if not containers or len(containers) == 0:
+            print("Container not found!")
+            return 0
+
+        container = containers[0]
+
         persons = {}
 
+        blocks = container.find_all(
+            lambda tag: tag.name == "div" and tag.get("class") == ["clearfix"]
+        )
         for block in blocks:
-            author_links = block.find_all("a", itemprop="author")
+            if block:
+                anchors = block.find_all("a", itemprop="author")
+                for anchor in anchors:
+                    if anchor:
+                        name_span = anchor.find("span", itemprop="name")
+                        name = name_span.text.strip() if name_span else None
+                        href = anchor["href"] if "href" in anchor.attrs else None
 
-            for link in author_links:
-                name = link.find("span", itemprop="name").text
-                href = link["href"]
-                persons[name] = href
+                        if name:
+                            persons[name] = href
 
         return persons
 
@@ -293,41 +310,35 @@ def get_description(url, soup, linkp_list, hashtag_urls_list):
     persons = get_person_links(soup)
 
     details_list = []
+
     for name, link in persons.items():
-        linkp = f"https://www.iranketab.ir{link}"
-        if linkp not in linkp_list:
-            linkp_list.append(linkp)
-            person_response = requests.get(linkp)
-            person_soup = BeautifulSoup(person_response.content, "html.parser")
+        person_response = requests.get(f"https://www.iranketab.ir{link}")
+        person_soup = BeautifulSoup(person_response.content, "html.parser")
 
-            person_id = link.split("/")[-1].split("-")[0]
-            person_div = person_soup.find("div", class_="col-md-9")
+        person_id = link.split("/")[-1].split("-")[0]
+        person_div = person_soup.find("div", class_="col-md-9")
 
-            if person_div:
-                person_description = person_div.find("h5").text.strip()
-            else:
-                person_description = None
+        person_description = None
+        if person_div:
+            h5_tag = person_div.find("h5")
+            if h5_tag:
+                person_description = h5_tag.text.strip()
 
-            details_list.append(
-                {"name": name, "id": person_id, "description": person_description}
-            )
+        details_list.append(
+            {"name": name, "id": person_id, "description": person_description}
+        )
 
     df_person_book = pd.DataFrame(details_list)
 
-    # Create dataframe for book descriptions
     book_id = url.split("/")[-1].split("-")[0]
-
 
     description_div = soup.find("div", class_="product-description")
 
+    book_description = None
     if description_div:
         book_description = description_div.text.strip()
-    else:
-        book_description = None
 
     df_book1 = pd.DataFrame({"group_id": book_id, "description": book_description}, index=[0])
-
-
 
 
     #getting categories
@@ -345,10 +356,11 @@ def get_description(url, soup, linkp_list, hashtag_urls_list):
 
             description_div = hashtag_soup.find("div", class_="col-md-10")
 
+            description = None
             if description_div:
-                description = description_div.find("h2").text.strip()
-            else:
-                description = None
+                h2_tag = description_div.find("h2")
+                if h2_tag:
+                    description = h2_tag.text.strip()
 
             hashtag_text = link.text.strip()
 
