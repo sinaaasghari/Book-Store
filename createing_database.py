@@ -10,7 +10,7 @@ USERNAME = 'root'
 PASSWORD = '13771377Mnn@'
 SERVER = 'localhost'
 PORT = 3306
-DATABASE = 'Book'
+DATABASE = 'book-store'
 
 url_object = URL.create("mysql+mysqlconnector",
                         username=USERNAME,
