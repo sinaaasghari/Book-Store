@@ -26,7 +26,7 @@ color =[
 
 st.title('BOOK STORE')
 
-tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
+tab1, tab2 = st.tabs(["📈 Analytical Chart", "🗃 Data"])
 
 with tab1:
     col1, col2 = st.columns([1, 3])
@@ -35,7 +35,7 @@ with tab1:
         type=st.radio(
             "Analytical charts",
             key="Analytical charts",
-            options=["count tag", "count publisher", "count year","count writer"],
+            options=["count tag", "count publisher", "count year","count writer","count translator"],
         )
     with col2:
         # First part: Analytical charts
@@ -157,6 +157,34 @@ with tab1:
             st.title('bar chart')
             chart = alt.Chart(df).mark_bar().encode(
                 x=alt.X('name', title=" نویسندگان "),
+                y=alt.Y('count_book', title="تعداد کتاب ها"),
+                color=alt.ColorValue(random.choice(color))
+            ).properties(
+                width=500,
+                height=300
+            )
+
+            st.altair_chart(chart, use_container_width=True)
+            ###
+            st.title('Pie chart')
+            fig = px.pie(df, values='count_book', names='name')
+
+            st.plotly_chart(fig, use_container_width=True) 
+        elif type == "count translator":
+            # plot question 5
+            st.header('count translator book')
+            cursor.execute(f"select name , count(*) as book_code from crew \
+                           inner join person p on crew.person_counter = p.counter\
+                               where role ='translator'group by name \
+                               order by book_code desc limit 10")
+            result = cursor.fetchall()
+            df = pd.DataFrame(
+                    result,
+                        columns=("name","count_book"))
+            ###
+            st.title('bar chart')
+            chart = alt.Chart(df).mark_bar().encode(
+                x=alt.X('name', title=" مترجمان "),
                 y=alt.Y('count_book', title="تعداد کتاب ها"),
                 color=alt.ColorValue(random.choice(color))
             ).properties(
