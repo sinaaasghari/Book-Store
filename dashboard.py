@@ -122,7 +122,6 @@ with tab1:
                     result,
                         columns=(f"{release_year}","count_book"))
             df.dropna(subset=[f"{release_year}"],inplace=True)
-            print(df)
             ###
             st.title('bar chart')
             chart = alt.Chart(df).mark_bar().encode(
