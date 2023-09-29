@@ -19,7 +19,7 @@ with open(csv_file, 'r') as file:
     for row in csv_reader:
         links.append(row[0])
 
-links = list(set(links[65100:65200]))
+links = list(set(links[1:10000]))
 
 #header of each request
 headers = {"Accept-Language": "en-US,en;q=0.5",
@@ -79,27 +79,31 @@ def get_detail(link):
         #inserting data into category df
         df_category = pd.concat([df_category, df_hashtags])
         df_category.drop_duplicates(inplace=True) 
-
         main_df = cf.mge_jnge(link, soup)
+        main_df.dropna(subset='code', inplace=True)
         df_iraniketab = pd.concat([df_iraniketab, main_df])
-    
-    #=======================================================================================
-    #lists
-    publisher_name_list = list()
-    publisher_id_list =list()
-    category_list = list()
-    category_id_list = list()
-    person_name_list = list()
-    person_id_list = list()
+        main_df.reset_index(drop=True, inplace=True)
+        main_df.to_csv('main.csv', index=False, encoding='utf-8-sig')
+        #=======================================================================================
+        #lists
+        publisher_name_list = list()
+        publisher_id_list =list()
+        category_list = list()
+        category_id_list = list()
+        person_name_list = list()
+        person_id_list = list()
 
+        print("++++++++")
+        print(link)
 
-
-    for index in range(len(main_df.index)):
-        try:
+        for index in range(len(main_df.index)):
             if type(main_df.loc[index, 'code']) == int:
                 book_code = main_df.loc[index, 'code']
             else:
                 book_code = main_df.loc[index, 'code'].values.tolist()[0]
+            
+
+
             if type(main_df.loc[index, 'publisher_name']) == str:
                 publisher_name_list.append(main_df.loc[index, 'publisher_name'])
             else:
@@ -113,84 +117,87 @@ def get_detail(link):
             publisher_id_list.append(p_id)
             new_dict = {'publisher_id': p_id, 'book_code': book_code}
             df_book_publisher = df_book_publisher._append(new_dict, ignore_index=True)
-        except: continue
-        try:
-            for category in main_df.loc[index, 'category']:
-                category_list.append(category)
-            for category_id in main_df.loc[index, 'category_id']:
-                new_dict = {'group_id': main_df.loc[index, 'book_id'],
-                            'category_id': category_id}
-                df_group_category = df_group_category._append(new_dict, ignore_index=True)
-                category_id_list.append(category_id) 
-        except: continue
+            try:
+                for category in main_df.loc[index, 'category']:
+                    category_list.append(category)
+                for category_id in main_df.loc[index, 'category_id']:
+                    new_dict = {'group_id': main_df.loc[index, 'book_id'],
+                                'category_id': category_id}
+                    df_group_category = df_group_category._append(new_dict, ignore_index=True)
+                    category_id_list.append(category_id) 
+            except: continue
+
+            
+            for writer_name in main_df.loc[index, 'writer']:
+                if type(main_df.loc[index, 'code']) == int:
+                    book_code = main_df.loc[index, 'code']
+                else:
+                    book_code = main_df.loc[index, 'code'].values.tolist()[0]
+                try:
+                    if len(writer_name[0]) == 1:
+                        new_dict = {'book_code': book_code,
+                                    'name': writer_name,
+                                    'role': 'writer'}
+                        df_crew = df_crew._append(new_dict, ignore_index=True)
+                        person_name_list.append(writer_name)
+                    else:
+                        new_dict = {'book_code': book_code,
+                                    'name': writer_name[0],
+                                    'role': 'writer'}
+                        df_crew = df_crew._append(new_dict, ignore_index=True)
+                        person_name_list.append(writer_name[0])
+                except: 
+                    person_name_list.append(writer_name)
+
+            for writer_id in main_df.loc[index, 'writer_id']:
+                try:
+                    person_id_list.append(writer_id[0])
+                except:
+                    person_id_list.append(writer_id)
+        
 
         
-        for writer_name in main_df.loc[index, 'writer']:
-            if type(main_df.loc[index, 'code']) == int:
-                book_code = main_df.loc[index, 'code']
-            else:
-                book_code = main_df.loc[index, 'code'].values.tolist()[0]
-            try:
-                if len(writer_name[0]) == 1:
-                    new_dict = {'book_code': book_code,
-                                'name': writer_name,
-                                'role': 'writer'}
-                    df_crew = df_crew._append(new_dict, ignore_index=True)
-                    person_name_list.append(writer_name)
-                else:
-                    new_dict = {'book_code': book_code,
-                                'name': writer_name[0],
-                                'role': 'writer'}
-                    df_crew = df_crew._append(new_dict, ignore_index=True)
-                    person_name_list.append(writer_name[0])
-            except: continue
-
-        for writer_id in main_df.loc[index, 'writer_id']:
-            try:
-                person_id_list.append(writer_id[0])
-            except:
-                person_id_list.append(writer_id)
-    
-
-    
-        for translator_name in main_df.loc[index, 'translator']:
-            if type(main_df.loc[index, 'code']) == int:
-                book_code = main_df.loc[index, 'code']
-            else: 
-                book_code = main_df.loc[index, 'code'].values.tolist()[0]
-            try:
-                if len(translator_name[0]) == 1:
-                    new_dict = {'book_code':book_code,
-                                'name': translator_name,
-                                'role': 'translator'}
-                    df_crew = df_crew._append(new_dict, ignore_index=True)
+            for translator_name in main_df.loc[index, 'translator']:
+                if type(main_df.loc[index, 'code']) == int:
+                    book_code = main_df.loc[index, 'code']
+                else: 
+                    book_code = main_df.loc[index, 'code'].values.tolist()[0]
+                try:
+                    if len(translator_name[0]) == 1:
+                        new_dict = {'book_code':book_code,
+                                    'name': translator_name,
+                                    'role': 'translator'}
+                        df_crew = df_crew._append(new_dict, ignore_index=True)
+                        person_name_list.append(translator_name)
+                    else:
+                        new_dict = {'book_code': book_code,
+                                    'name': translator_name[0],
+                                    'role': 'translator'}
+                        df_crew = df_crew._append(new_dict, ignore_index=True)
+                        person_name_list.append(translator_name[0])
+                except: 
                     person_name_list.append(translator_name)
-                else:
-                    new_dict = {'book_code': book_code,
-                                'name': translator_name[0],
-                                'role': 'translator'}
-                    df_crew = df_crew._append(new_dict, ignore_index=True)
-                    person_name_list.append(translator_name[0])
-            except: continue
-
-        for translator_id in main_df.loc[index, 'translator_id']:
-            try:
-                person_id_list.append(translator_id[0])
-            except:
-                person_id_list.append(translator_id)
-    
-    #person
-    p_df = pd.DataFrame({'id': person_id_list, 'name': person_name_list})
-    df_person = pd.concat([df_person, p_df])
-    df_person.drop_duplicates(subset=['name'], inplace=True)
-    #crew 
-    df_crew.drop_duplicates(inplace=True)
-    #publisher
-    pub_df = pd.DataFrame({'id': publisher_id_list, 'name': publisher_name_list})
-    df_publisher = pd.concat([df_publisher, pub_df])
-    df_publisher.drop_duplicates(inplace=True)
-    i += 1
-    return response
+            for translator_id in main_df.loc[index, 'translator_id']:
+                try:
+                    person_id_list.append(translator_id[0])
+                except:
+                    person_id_list.append(translator_id)
+        # crew
+        df_crew.drop_duplicates(inplace=True)
+        try:
+            # publisher
+            pub_df = pd.DataFrame({'id': publisher_id_list, 'name': publisher_name_list})
+            df_publisher = pd.concat([df_publisher, pub_df])
+            df_publisher.drop_duplicates(inplace=True)
+        except: pass
+        try:
+            #person
+            p_df = pd.DataFrame({'id': person_id_list, 'name': person_name_list})
+            df_person = pd.concat([df_person, p_df])
+            df_person.drop_duplicates(subset=['name'], inplace=True)
+        except: pass
+        i += 1
+    return {'response': response, 'link': link}
 
 
 
@@ -201,8 +208,9 @@ count_of_request = 1000
 workers = 50
 sleep_time = 2
 timeout = 30
-max_count = math.ceil((len(links)*1.2) / count_of_request)
+max_count = math.ceil((len(links)*1) / count_of_request)
 
+bad_links = list()
 count = 0
 out = list()
 while (len(links)) and (count < max_count):
@@ -210,7 +218,7 @@ while (len(links)) and (count < max_count):
     if len(links) > count_of_request:
         req_list = links[:count_of_request].copy()
     else:
-        req_list = links.copy()
+        req_list = links[1000*count:].copy()
 
     with ThreadPoolExecutor(max_workers=workers) as executer:
         future_to_url = (executer.submit(get_detail, link) for link in req_list)
@@ -222,17 +230,23 @@ while (len(links)) and (count < max_count):
                 continue
 
     for result in out:
-        if result.status_code == 200:
-            url = result.url.lower()
+        if result['response'].status_code == 200:
+            url = result['link']
             if url in links:
                 links.remove(url)
-    
+        else:
+            url = result['link']
+            links.remove(url)
+            bad_links.append(url)
+
     print(count)
     count += 1
 
+# for link in links:
+#     get_detail(link)
+# get_detail("https://www.iranketab.ir/book/65989-spooky-house")
 
-
-
+df_bad_links = pd.DataFrame({'link': bad_links})
 #------------------------------------------------------------------------------------------------------------
 print("crawl done!")
 #inserting into dataframes
@@ -247,7 +261,7 @@ df_group_book = pd.DataFrame({'group_id': df_iraniketab['book_id'].values.tolist
                               'book_code': df_iraniketab['code'].values.tolist()})
 
 
-df_book = df_iraniketab[['code', 'title_persian','title_english','price','discount','grade','code','shabak',
+df_book = df_iraniketab[['code', 'title_persian','title_english','price','discount','grade', 'shabak',
                                 'page_count','release_year_sh','release_year_mi','exist','earliest_access',
                                 'print_series', 'ghate', 'cover']]
 df_book.drop_duplicates(inplace=True)
@@ -257,7 +271,7 @@ df_book.drop_duplicates(inplace=True)
 df_person_description['id'] = df_person_description['id'].astype('float64')
 df_person['id'] = df_person['id'].astype('float64')
 df_person = pd.merge(df_person, df_person_description[['id', 'description']], how='left', on='id')
-df_person['counter'] = np.arange(0, len(df_person['name'].values.tolist()))
+df_person['counter'] = np.arange(1, 1 + len(df_person['name'].values.tolist()))
 df_crew.reset_index(drop=True, inplace=True)
 for index in df_crew.index.values.tolist():
     name = df_crew.loc[index, 'name']
@@ -275,16 +289,17 @@ df_crew.rename(columns={'name': 'person_counter'}, inplace=True)
 
 #=======================================================================================
 #make csv
-df_group.to_csv('group2.csv', index=False, encoding='utf-8-sig')
-df_person_description.to_csv('person_description2.csv', index=False, encoding='utf-8-sig')
-df_category.to_csv('category2.csv', index=False, encoding='utf-8-sig')
+df_group.to_csv('group.csv', index=False, encoding='utf-8-sig')
+df_person_description.to_csv('person_description.csv', index=False, encoding='utf-8-sig')
+df_category.to_csv('category.csv', index=False, encoding='utf-8-sig')
 df_iraniketab.to_csv('iraniketab2.csv', index=False, encoding='utf-8-sig')
-df_book.to_csv('book2.csv', index=False, encoding='utf-8-sig')
-df_group_book.to_csv('group_book2.csv', index=False, encoding='utf-8-sig')
-df_person.to_csv('person2.csv', index=False, encoding='utf-8-sig')
-df_crew.to_csv('crew2.csv', index=False, encoding='utf-8-sig')
-df_publisher.to_csv('publisher2.csv', index=False, encoding='utf-8-sig')
-df_group_category.to_csv('group_category2.csv', index=False, encoding='utf-8-sig')
+df_book.to_csv('book.csv', index=False, encoding='utf-8-sig')
+df_group_book.to_csv('group_book.csv', index=False, encoding='utf-8-sig')
+df_person.to_csv('person.csv', index=False, encoding='utf-8-sig')
+df_crew.to_csv('crew.csv', index=False, encoding='utf-8-sig')
+df_publisher.to_csv('publisher.csv', index=False, encoding='utf-8-sig')
+df_group_category.to_csv('group_category.csv', index=False, encoding='utf-8-sig')
 df_book_publisher.to_csv('book_publisher.csv', index=False, encoding='utf-8-sig')
+df_bad_links.to_csv('bad_links.csv', index=False, encoding='utf-8-sig')
 
 print("Done!")

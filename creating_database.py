@@ -25,8 +25,8 @@ conn = engine.connect()
 book = Table(
     'book', meta,
     Column('code', Integer, primary_key=True),
-    Column('title_persian', String(50)),
-    Column('title_english', String(50)),
+    Column('title_persian', String(200)),
+    Column('title_english', String(200)),
     Column('price', Integer),
     Column('discount', Integer),
     Column('grade', Integer),
@@ -45,38 +45,39 @@ book = Table(
 group = Table(
     'group', meta,
     Column('id', Integer, primary_key=True),
-    Column('description', String(500))
+    Column('description', String(5000))
 )
 
 #group_book
 group_book = Table(
     'group_book', meta,
     Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('group_id', Integer, ForeignKey('group.id'))
+    Column('group_id', Integer, ForeignKey('group.id')),
+    Column('book_code', Integer, ForeignKey('book.code'))
 )
 
 #person
 person = Table(
     'person', meta,
-    Column('counter', Identity, primary_key=True),
-    Column('id', Integer),
-    Column('name', String(50)),
-    Column('description', String(500))
+    Column('counter', Integer, primary_key=True),
+    Column('person_id', Integer),
+    Column('name', String(100)),
+    Column('description', String(5000))
 )
 
 #publisher
 publisher = Table(
     'publisher', meta,
     Column('id', Integer, primary_key=True),
-    Column('name', String(50))
+    Column('name', String(100))
 )
 
 #category
 category = Table(
     'category', meta,
     Column('id', Integer, primary_key=True),
-    Column('name', String(50)),
-    Column('description', String(500))
+    Column('name', String(150)),
+    Column('description', String(5000))
 )
 
 #group_category
@@ -100,7 +101,7 @@ crew = Table(
     'crew', meta,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('book_code', Integer, ForeignKey('book.code')),
-    Column('person_counter', Integer, ForeignKey('person.id')),
+    Column('person_counter', Integer, ForeignKey('person.counter')),
     Column('role', String(15))
 )
 
