@@ -35,7 +35,7 @@ with tab1:
         type=st.radio(
             "Analytical charts",
             key="Analytical charts",
-            options=["count tag", "count publisher", "collapsed"],
+            options=["count tag", "count publisher", "count year"],
         )
     with col2:
         # First part: Analytical charts
@@ -94,3 +94,52 @@ with tab1:
             fig = px.pie(df, values='count_book', names='name')
 
             st.plotly_chart(fig, use_container_width=True)    
+        if type == "count year":
+            # plot question 1
+            st.header('count year book')
+            
+            release_year = st.selectbox(
+                'release year',
+                ('miladi', 'shamsi'))
+
+            st.write('You selected:', release_year)
+            if release_year=="miladi":
+                release_year ="release_year_mi"
+                start_year = 1980
+                end_year = 2030
+                end_count = 300
+            else:
+                release_year ="release_year_sh"
+                start_year = 1370
+                end_year = 1405
+                end_count = 1000
+
+            number = st.number_input('Choose number', step=1,value=10,min_value=5,max_value =30)
+            cursor.execute(f"select {release_year},count(*) as count_book from book group by \
+                            {release_year} order by count_book desc limit {number}")
+            result = cursor.fetchall()
+            df = pd.DataFrame(
+                    result,
+                        columns=(f"{release_year}","count_book"))
+            df.dropna(subset=[f"{release_year}"],inplace=True)
+            print(df)
+            ###
+            st.title('bar chart')
+            chart = alt.Chart(df).mark_bar().encode(
+                x=alt.X(f'{release_year}', title="سال انتشار",
+                        scale=alt.Scale(domain=(start_year, end_year)),
+                        axis=alt.Axis(tickCount=4)),
+                y=alt.Y('count_book', title="تعداد کتاب ها",
+                        scale=alt.Scale(domain=(0, end_count))),
+                color=alt.ColorValue(random.choice(color))
+            ).properties(
+                width=500,
+                height=300
+            )
+
+            st.altair_chart(chart, use_container_width=True)
+            ###
+            st.title('Pie chart')
+            fig = px.pie(df, values='count_book', names=f'{release_year}')
+
+            st.plotly_chart(fig, use_container_width=True)
