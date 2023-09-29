@@ -19,11 +19,10 @@ with open(csv_file, 'r') as file:
     for row in csv_reader:
         links.append(row[0])
 
-links = list(set(links[1:10000]))
+links = list(set(links[1:]))
 
 #header of each request
-headers = {"Accept-Language": "en-US,en;q=0.5",
-           "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"}
+headers = {"Accept-Language": "en-US,en;q=0.5"}
 
 #==============================================================================================================
 #creating lists and dataframes
