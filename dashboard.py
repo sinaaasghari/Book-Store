@@ -26,7 +26,7 @@ color =[
 
 st.title('BOOK STORE')
 
-tab1, tab2 = st.tabs(["📈 Analytical Chart", "🗃 Data"])
+tab1, tab2 ,tab3 = st.tabs(["📈 Analytical Chart", "🗃 filter book","📈 Analytical Chart"])
 
 with tab1:
     col1, col2 = st.columns([1, 3])
@@ -198,3 +198,60 @@ with tab1:
             fig = px.pie(df, values='count_book', names='name')
 
             st.plotly_chart(fig, use_container_width=True) 
+with tab2:
+    text_search = st.text_input('text to search')
+    fields_book = st.multiselect(
+    'search fields',
+    ['عنوان فارسی', 'عنوان انگلیسی','سال انتشار میلادی','سال انتشار شمسی', 'نویسنده', 'مترجم','ناشر','نوع جلد','قطع'],
+    ['عنوان فارسی'])
+    change_persion_to_English ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
+                                'release_year_mi':'سال انتشار میلادی','release_year_sh':'سال انتشار شمسی',
+                                'person_writer':'نویسنده','person_translator': 'مترجم',
+                                'p.name':'ناشر','cover':'نوع جلد',
+                                'ghate':'قطع'}
+    if fields_book ==[]:
+        list_search ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
+                            'release_year_mi':'سال انتشار میلادی','release_year_sh':'سال انتشار شمسی',
+                            'person_writer':'نویسنده','person_translator': 'مترجم',
+                            'p.name':'ناشر','cover':'نوع جلد',
+                            'ghate':'قطع'}
+    else:
+        list_search ={}
+        for field in fields_book:
+            for k, v in change_persion_to_English.items():
+                if field == v:
+                    list_search[k] = field
+    # search all
+    base_query ="SELECT code,title_persian,title_english,release_year_sh,release_year_mi,\
+            cover,ghate,p.name as publisher,p2.name as person,role\
+            FROM book inner join book_publisher bp on book.code = bp.book_code\
+            inner join publisher p on bp.publisher_id = p.id\
+            inner join  crew c on book.code = c.book_code\
+            inner join  person p2 on c.person_counter = p2.counter WHERE "
+    i = 0
+    where_query = " "
+    for k, v in list_search.items():
+        i= i + 1
+        if k == "person_translator":
+            where_query = " " + where_query +f" p2.name LIKE '%{text_search}%' "+" "+ "and"+" "                
+            where_query = " " + where_query +f"role = 'translator'" +" "               
+        elif k == "person_writer":
+            where_query = " " + where_query +f" p2.name LIKE '%{text_search}%' "+" "+ "and"+" "                
+            where_query = " " + where_query +f"role = 'writer'" +" "
+        else:
+            where_query = " " + where_query +f" {k} LIKE '%{text_search}%' "                
+        if len(list_search) != i: 
+            where_query = where_query +" "+ "or"+" "
+    query = base_query +where_query
+    st.header('filter book')
+    cursor.execute(query)
+    result = cursor.fetchall()
+    df = pd.DataFrame(
+            result,
+                columns=("code","title_persian","title_english",
+                        "release_year_sh","release_year_mi",
+                        "cover","ghate","publisher",
+                        "person","role"))
+    st.table(df)
+            
+
