@@ -35,7 +35,7 @@ with tab1:
         type=st.radio(
             "Analytical charts",
             key="Analytical charts",
-            options=["count tag", "count publisher", "count year"],
+            options=["count tag", "count publisher", "count year","count writer"],
         )
     with col2:
         # First part: Analytical charts
@@ -94,8 +94,8 @@ with tab1:
             fig = px.pie(df, values='count_book', names='name')
 
             st.plotly_chart(fig, use_container_width=True)    
-        if type == "count year":
-            # plot question 1
+        elif type == "count year":
+            # plot question 3
             st.header('count year book')
             
             release_year = st.selectbox(
@@ -142,3 +142,31 @@ with tab1:
             fig = px.pie(df, values='count_book', names=f'{release_year}')
 
             st.plotly_chart(fig, use_container_width=True)
+        elif type == "count writer":
+            # plot question 4
+            st.header('count writer book')
+            cursor.execute(f"select name , count(*) as book_code from crew \
+                           inner join person p on crew.person_counter = p.counter\
+                               where role ='writer'group by name \
+                               order by book_code desc limit 10")
+            result = cursor.fetchall()
+            df = pd.DataFrame(
+                    result,
+                        columns=("name","count_book"))
+            ###
+            st.title('bar chart')
+            chart = alt.Chart(df).mark_bar().encode(
+                x=alt.X('name', title=" نویسندگان "),
+                y=alt.Y('count_book', title="تعداد کتاب ها"),
+                color=alt.ColorValue(random.choice(color))
+            ).properties(
+                width=500,
+                height=300
+            )
+
+            st.altair_chart(chart, use_container_width=True)
+            ###
+            st.title('Pie chart')
+            fig = px.pie(df, values='count_book', names='name')
+
+            st.plotly_chart(fig, use_container_width=True) 
