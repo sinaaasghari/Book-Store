@@ -8,7 +8,7 @@ import mysql.connector
 #Creating Database,Connection
 meta = MetaData()
 USERNAME = 'root'
-PASSWORD = 'zaq1ZAQ!#'
+PASSWORD = 'zaq1ZAQ!'
 SERVER = 'localhost'
 PORT = 3306
 DATABASE = 'book-store'
@@ -150,23 +150,48 @@ def request_three():
 #first hypothesis
 def hypothesis_one():
     query = '''
-    SELECT code, price
+    SELECT DISTINCT code, price
     FROM book
     JOIN crew on book.code = crew.book_code
-    WHERE code not in (SELECT DISTINCT book_code
-                       FROM crew
+    WHERE code not in (SELECT DISTINCT code
+                       FROM book
+                       join crew on book.code = crew.book_code
                        WHERE role = 'translator')
     ORDER BY price DESC ;
     '''
-    return pd.read_sql(query, conn)
+    not_translated_df = pd.read_sql(query, conn)
+
+    query = '''
+    SELECT DISTINCT code, price
+    FROM book
+    JOIN crew on book.code = crew.book_code
+    WHERE code in (SELECT DISTINCT code
+                       FROM book
+                       join crew on book.code = crew.book_code
+                       WHERE role = 'translator')
+    ORDER BY price DESC ;
+    '''
+    translated_df = pd.read_sql(query, conn)
+
+
+    return translated_df, not_translated_df
 
 #second hypothesis
 def hypothesis_two():
     query = '''
     SELECT code, price, cover
     FROM book
-    WHERE cover = 'جلدسخت' OR cover = 'شومیز'
+    WHERE cover = 'جلدسخت'
     ORDER BY price DESC, cover ;
     '''
-    return pd.read_sql(query, conn)
+    hard_cover_df = pd.read_sql(query, conn)
+
+    query = '''
+        SELECT code, price, cover
+        FROM book
+        WHERE cover = 'شومیز'
+        ORDER BY price DESC, cover ;
+        '''
+    shomiz_cover_df = pd.read_sql(query, conn)
+    return hard_cover_df, shomiz_cover_df
 
