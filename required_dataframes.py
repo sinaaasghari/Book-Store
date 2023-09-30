@@ -150,15 +150,31 @@ def request_three():
 #first hypothesis
 def hypothesis_one():
     query = '''
-    SELECT code, price
+    SELECT DISTINCT code, price
     FROM book
     JOIN crew on book.code = crew.book_code
-    WHERE code not in (SELECT DISTINCT book_code
-                       FROM crew
+    WHERE code not in (SELECT DISTINCT code
+                       FROM book
+                       join crew on book.code = crew.book_code
                        WHERE role = 'translator')
     ORDER BY price DESC ;
     '''
-    return pd.read_sql(query, conn)
+    not_translated_df = pd.read_sql(query, conn)
+
+    query = '''
+    SELECT DISTINCT code, price
+    FROM book
+    JOIN crew on book.code = crew.book_code
+    WHERE code in (SELECT DISTINCT code
+                       FROM book
+                       join crew on book.code = crew.book_code
+                       WHERE role = 'translator')
+    ORDER BY price DESC ;
+    '''
+    translated_df = pd.read_sql(query, conn)
+
+
+    return translated_df, not_translated_df
 
 #second hypothesis
 def hypothesis_two():
