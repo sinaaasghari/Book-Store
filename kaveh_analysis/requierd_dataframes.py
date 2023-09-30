@@ -8,7 +8,7 @@ import mysql.connector
 #Creating Database,Connection
 meta = MetaData()
 USERNAME = 'root'
-PASSWORD = 'A1382L1234i@#'
+PASSWORD = 'zaq1ZAQ!'
 SERVER = 'localhost'
 PORT = 3306
 DATABASE = 'book-store'
