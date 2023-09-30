@@ -204,9 +204,9 @@ def get_detail(link):
 #request manager
 count_of_request = 1000
 #requests in each pulse
-workers = 50
+workers = 10
 sleep_time = 2
-timeout = 30
+timeout = 90
 max_count = math.ceil((len(links)*1) / count_of_request)
 
 bad_links = list()
@@ -217,7 +217,7 @@ while (len(links)) and (count < max_count):
     if len(links) > count_of_request:
         req_list = links[:count_of_request].copy()
     else:
-        req_list = links[1000*count:].copy()
+        req_list = links.copy()
 
     with ThreadPoolExecutor(max_workers=workers) as executer:
         future_to_url = (executer.submit(get_detail, link) for link in req_list)
@@ -226,6 +226,7 @@ while (len(links)) and (count < max_count):
                 data = future.result()
                 out.append(data)
             except Exception as exc:
+                print(future)
                 continue
 
     for result in out:
@@ -235,8 +236,9 @@ while (len(links)) and (count < max_count):
                 links.remove(url)
         else:
             url = result['link']
-            links.remove(url)
-            bad_links.append(url)
+            if url in links:
+                links.remove(url)
+                bad_links.append(url)
 
     print(count)
     count += 1
