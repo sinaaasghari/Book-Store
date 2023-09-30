@@ -8,7 +8,7 @@ import mysql.connector
 #Creating Database,Connection
 meta = MetaData()
 USERNAME = 'root'
-PASSWORD = 'zaq1ZAQ!'
+PASSWORD = 'zaq1ZAQ!#'
 SERVER = 'localhost'
 PORT = 3306
 DATABASE = 'book-store'
@@ -165,6 +165,7 @@ def hypothesis_two():
     query = '''
     SELECT code, price, cover
     FROM book
+    WHERE cover = 'جلدسخت' OR cover = 'شومیز'
     ORDER BY price DESC, cover ;
     '''
     return pd.read_sql(query, conn)
