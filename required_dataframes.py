@@ -181,8 +181,17 @@ def hypothesis_two():
     query = '''
     SELECT code, price, cover
     FROM book
-    WHERE cover = 'جلدسخت' OR cover = 'شومیز'
+    WHERE cover = 'جلدسخت'
     ORDER BY price DESC, cover ;
     '''
-    return pd.read_sql(query, conn)
+    hard_cover_df = pd.read_sql(query, conn)
+
+    query = '''
+        SELECT code, price, cover
+        FROM book
+        WHERE cover = 'شومیز'
+        ORDER BY price DESC, cover ;
+        '''
+    shomiz_cover_df = pd.read_sql(query, conn)
+    return hard_cover_df, shomiz_cover_df
 
