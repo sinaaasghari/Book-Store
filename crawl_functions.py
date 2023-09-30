@@ -174,15 +174,12 @@ def mge_jnge(url_main, soup):
             for w_id in i.find_all('div', attrs={"class": "row clearfix"}):
                 span_tags_w_id = w_id.find_all('span', attrs={"itemprop": "name"})
                 for tag in span_tags_w_id:
-                    print(tag)
                     if tag.find_parent('a'):
-                        print('yes')
                         up = tag.find_parent('a')
                         match_writer_id = re.search(r'(\d+)', up.get('href'))
                         number_writer_ids = int(match_writer_id.group(1))
                         w_ids.append(number_writer_ids)
                     else:
-                        print('no')
                         w_ids.append(np.nan)
 
                 if len(w_ids) == 0:
@@ -310,12 +307,10 @@ def get_description(url, soup, linkp_list, hashtag_urls_list):
     # Search the blocks for all author and translator links
     def get_person_links(soup):
         if soup is None:
-            print("Soup is empty!")
             return 0
 
         containers = soup.find_all("div", class_="product-container well clearfix")
         if not containers or len(containers) == 0:
-            print("Container not found!")
             return 0
 
         container = containers[0]
