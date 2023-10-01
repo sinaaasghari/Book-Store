@@ -151,7 +151,7 @@ with tab1:
             # plot question 4
             st.header('count writer book')
             cursor.execute(f"select name , count(*) as book_code from crew \
-                           inner join person p on crew.person_counter = p.counter\
+                           inner join person p on crew.person_counter = p.id\
                                where role ='writer'group by name \
                                order by book_code desc limit 10")
             result = cursor.fetchall()
@@ -179,7 +179,7 @@ with tab1:
             # plot question 5
             st.header('count translator book')
             cursor.execute(f"select name , count(*) as book_code from crew \
-                           inner join person p on crew.person_counter = p.counter\
+                           inner join person p on crew.person_counter = p.id\
                                where role ='translator'group by name \
                                order by book_code desc limit 10")
             result = cursor.fetchall()
@@ -324,7 +324,7 @@ with tab2:
             FROM book inner join book_publisher bp on book.code = bp.book_code\
             inner join publisher p on bp.publisher_id = p.id\
             inner join  crew c on book.code = c.book_code\
-            inner join  person p2 on c.person_counter = p2.counter WHERE "
+            inner join  person p2 on c.person_counter = p2.id WHERE "
     i = 0
     where_query = " "
     for k, v in list_search.items():
@@ -341,7 +341,7 @@ with tab2:
             where_query = where_query +" "+ "or"+" "
     query = base_query +where_query
     st.header('filter book')
-    cursor.execute(query)
+    cursor.execute(query+""+"limit 20")
     result = cursor.fetchall()
     df = pd.DataFrame(
             result,
@@ -399,13 +399,13 @@ with tab3:
                                                 'یونان','ایران','آمریکای لاتین','عرب'))
             
             cursor.execute(f"select person.name , count(DISTINCT crew.book_code) as count from crew\
-            join person on crew.person_counter = person.counter\
+            join person on crew.person_counter = person.id\
             join book on crew.book_code = book.code\
             join group_book on book.code = group_book.book_code\
             join `group` on group_book.group_id = `group`.id\
             join group_category on `group`.id = group_category.group_id\
             join category on group_category.category_id = category.id\
-            where person.person_id is not NULL and person.name!='مجموعه ی نویسندگان' and\
+            where person.id is not NULL and person.name!='مجموعه ی نویسندگان' and\
             person.name!='مجموعه ی مترجمان' and crew.role = 'writer' and category.name = 'ادبیات {category}'\
                            group by person.name order by count DESC\
                            limit 5;")            
