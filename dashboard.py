@@ -110,14 +110,14 @@ with tab1:
             st.write('You selected:', release_year)
             if release_year=="miladi":
                 release_year ="release_year_mi"
-                start_year = 1980
+                start_year = 1950
                 end_year = 2030
-                end_count = 300
+                end_count = 10000
             else:
                 release_year ="release_year_sh"
                 start_year = 1370
                 end_year = 1405
-                end_count = 1000
+                end_count = 30000
 
             number = st.number_input('Choose number', step=1,value=10,min_value=5,max_value =30)
             cursor.execute(f"select {release_year},count(*) as count_book from book group by \
