@@ -213,7 +213,7 @@ def hypothesis_desc_grade():
     JOIN `group` on group_book.group_id = `group`.id
     WHERE `group`.description is not null ;
     '''
-    null_desc_df = pd.read_sql(query, conn)
+    not_null_desc_df = pd.read_sql(query, conn)
     query = '''
     SELECT DISTINCT `group`.id as group_id, AVG(book.grade) OVER (PARTITION BY `group`.id) as avg_grade
     FROM book
@@ -221,7 +221,7 @@ def hypothesis_desc_grade():
     JOIN `group` on group_book.group_id = `group`.id
     WHERE `group`.description is null ;
     '''
-    not_null_desc_df = pd.read_sql(query, conn)
+    null_desc_df = pd.read_sql(query, conn)
     return null_desc_df, not_null_desc_df
 
 #fifth hypothesis (extra)
@@ -241,26 +241,8 @@ def hypothesis_price_writer_num_of_books(start_year, end_year):
     '''
     return pd.read_sql(query, conn)
 
-#sixth hypothesis (extra)
-def hypothesis_writer_num_of_books_page_count():
-    query = '''
-    SELECT DISTINCT first_value(book.title_persian) over (PARTITION BY group_id) as title, first_value(page_count) over (PARTITION BY group_id) as page_count,
-                    book_writer.name, book_writer.total_book
-    FROM book
-    JOIN group_book on book.code = group_book.book_code
-    JOIN `group` on group_book.group_id = `group`.id
-    JOIN (SELECT name, COUNT(group.id) OVER (PARTITION BY person.name) as total_book
-        FROM person
-        JOIN crew on person.counter = crew.person_counter
-        JOIN book on crew.book_code = book.code
-        JOIN group_book on book.code = group_book.book_code
-        JOIN `group`
-        WHERE role = 'writer') as book_writer
-    ORDER BY total_book DESC ;
-    '''
-    return pd.read_sql(query, conn)
 
-#hypothesis seventh (extra)
+#hypothesis sixth (extra)
 def hypothesis_page_count_price():
     query = '''
     select DISTINCT group_id, first_value(book.title_persian) over (partition by group_id) as title, AVG(page_count) over (partition by group_id) as page_count,
@@ -270,4 +252,3 @@ def hypothesis_page_count_price():
     '''
     return pd.read_sql(query, conn)
 
-print(hypothesis_writer_num_of_books_page_count())
