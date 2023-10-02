@@ -299,12 +299,11 @@ with tab2:
     text_search = st.text_input('text to search')
     fields_book = st.multiselect(
     'search fields',
-    ['عنوان فارسی', 'عنوان انگلیسی', 'نویسنده', 'مترجم','ناشر','نوع جلد','قطع'],
+    ['عنوان فارسی', 'عنوان انگلیسی', 'نویسنده', 'مترجم'],
     ['عنوان فارسی'])
     change_persion_to_English ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
                                 'person_writer':'نویسنده','person_translator': 'مترجم',
-                                'p.name':'ناشر','cover':'نوع جلد',
-                                'ghate':'قطع'}
+                                }
     ## slider 
     st.text('search shamsi date:')
     values_shamsi = st.slider('Select a range of date shamsi',1380, 1390, (1350,1410),step=1)
@@ -497,7 +496,7 @@ with tab3:
                     st.altair_chart(chart, use_container_width=True)
                     
                 elif type == "4. variety of Publish VS Grade":
-                    cursor.execute(f"SELECT title_english , COUNT(DISTINCT publisher.name) AS NumBooks, AVG(grade) AS AvgRating\
+                    cursor.execute(f"SELECT title_english , COUNT(DISTINCT publisher.name) AS NumBooks\
                                    FROM book\
                                    join book_publisher on book.code = book_publisher.book_code\
                                    join publisher on book_publisher.publisher_id = publisher.id\
@@ -519,12 +518,12 @@ with tab3:
                     #name_list = list(df['year'])
                     st.title('line')
                     scatter_plot = sns.scatterplot(data=df, x='num', y='grade')
-                    scatter_plot.set_xlabel('Year', fontname='Times New Roman', fontsize=14)
-                    scatter_plot.set_ylabel('Page', fontname='Times New Roman', fontsize=14)
-                    plt.xticks(fontname='Times New Roman')
+                    scatter_plot.set_xlabel('title book', fontname='Times New Roman', fontsize=14)
+                    scatter_plot.set_ylabel('count publisher', fontname='Times New Roman', fontsize=14)
+                    plt.xticks(fontname='Times New Roman',rotation=90)
                     plt.yticks(fontname='Times New Roman')
-                    #plt.ylim(0, 500)
+                    #plt.ylim(0, 500)   
                     sns.despine()
                     #plt.xlim(1360,1403)
                     plt.legend()
-                    st.pyplot(scatter_plot.figure)
+                    st.pyplot(scatter_plot.figure)               
