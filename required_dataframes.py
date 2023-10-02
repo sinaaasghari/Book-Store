@@ -207,7 +207,7 @@ def hypothesis_grade_price(stare_year, end_year):
 #four hypothesis (extra)
 def hypothesis_desc_grade():
     query = '''
-    SELECT DISTINCT `group`.id as group_id, AVG(book.grade) OVER (PARTITION BY `group`.id)
+    SELECT DISTINCT `group`.id as group_id, AVG(book.grade) OVER (PARTITION BY `group`.id) as avg_grade
     FROM book
     JOIN group_book on book.code = group_book.book_code
     JOIN `group` on group_book.group_id = `group`.id
@@ -215,7 +215,7 @@ def hypothesis_desc_grade():
     '''
     null_desc_df = pd.read_sql(query, conn)
     query = '''
-    SELECT DISTINCT `group`.id as group_id, AVG(book.grade) OVER (PARTITION BY `group`.id)
+    SELECT DISTINCT `group`.id as group_id, AVG(book.grade) OVER (PARTITION BY `group`.id) as avg_grade
     FROM book
     JOIN group_book on book.code = group_book.book_code
     JOIN `group` on group_book.group_id = `group`.id
@@ -269,3 +269,5 @@ def hypothesis_page_count_price():
     JOIN group_book on book.code = group_book.book_code;
     '''
     return pd.read_sql(query, conn)
+
+print(hypothesis_writer_num_of_books_page_count())
