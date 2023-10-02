@@ -304,11 +304,12 @@ with tab2:
     text_search_person = st.text_input('text to search person ')
     fields_book_person = st.multiselect(
     'search fields',
-    ['نویسنده', 'مترجم'],
-    ['نویسنده'])
+    ['نویسنده', 'مترجم'])
     change_persion_to_English ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
                                 'person_writer':'نویسنده','person_translator': 'مترجم',
                                 }
+    exist_book = st.checkbox('exists book')
+    
     ## slider 
     st.text('search shamsi date:')
     values_shamsi = st.slider('Select a range of date shamsi',1380, 1390, (1350,1410),step=1)
@@ -341,13 +342,12 @@ with tab2:
     else:
         list_search ={}
         field_book_all =fields_book +fields_book_person
-        print(field_book_all)
         for field in field_book_all:
             for k, v in change_persion_to_English.items():
                 if field == v:
                     list_search[k] = field
     # search all
-    base_query =f"SELECT code,title_persian,title_english,price,release_year_sh,release_year_mi,\
+    base_query =f"SELECT code,title_persian,title_english,price,exist,release_year_sh,release_year_mi,\
             cover,ghate,p.name as publisher,p2.name as person,role\
             FROM book inner join book_publisher bp on book.code = bp.book_code\
             inner join publisher p on bp.publisher_id = p.id\
@@ -361,10 +361,13 @@ with tab2:
     if selected_cover != 'همه جلدها':
         base_query = base_query + f" cover = '{selected_cover}' and "
     if selected_ghate != 'همه قطع':
-        base_query = base_query + f" ghate = '{selected_ghate}' and "    
+        base_query = base_query + f" ghate = '{selected_ghate}' and "  
+    # check exist book
+    if exist_book:
+        base_query = base_query + f" exist = 1 and "  
+
     i = 0
     where_query = " "
-    print(list_search)
     for k, v in list_search.items():
         i= i + 1
         if k == "person_translator":
@@ -383,7 +386,7 @@ with tab2:
     result = cursor.fetchall()
     df = pd.DataFrame(
             result,
-                columns=("code","title_persian","title_english","price",
+                columns=("code","title_persian","title_english","price","exist",
                         "release_year_sh","release_year_mi",
                         "cover","ghate","publisher",
                         "person","role"))
