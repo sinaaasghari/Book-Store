@@ -219,7 +219,7 @@ with tab1:
             scatter_plot = sns.scatterplot(data=df, x='Year', y='Count')
             plt.axhline(mean_height, color='red', label = 'Average' , alpha=0.5)
             scatter_plot.set_xlabel('Year', fontname='Times New Roman', fontsize=14)
-            scatter_plot.set_ylabel('Price', fontname='Times New Roman', fontsize=14)
+            scatter_plot.set_ylabel('page', fontname='Times New Roman', fontsize=14)
             plt.xticks(fontname='Times New Roman')
             plt.yticks(fontname='Times New Roman')
             sns.despine()
@@ -365,6 +365,7 @@ with tab2:
     # check exist book
     if exist_book:
         base_query = base_query + f" exist = 1 and "  
+
 
     i = 0
     where_query = " "
