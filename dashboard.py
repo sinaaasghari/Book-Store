@@ -15,7 +15,7 @@ conn = mysql.connector.connect(
     host='localhost',
     user='root',
     password='13771377Mnn@',
-    database='book_store1'
+    database='book_store'
 )
 
 cursor = conn.cursor()
@@ -299,13 +299,35 @@ with tab2:
     text_search = st.text_input('text to search')
     fields_book = st.multiselect(
     'search fields',
-    ['عنوان فارسی', 'عنوان انگلیسی','سال انتشار میلادی','سال انتشار شمسی', 'نویسنده', 'مترجم','ناشر','نوع جلد','قطع'],
+    ['عنوان فارسی', 'عنوان انگلیسی', 'نویسنده', 'مترجم','ناشر','نوع جلد','قطع'],
     ['عنوان فارسی'])
     change_persion_to_English ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
-                                'release_year_mi':'سال انتشار میلادی','release_year_sh':'سال انتشار شمسی',
                                 'person_writer':'نویسنده','person_translator': 'مترجم',
                                 'p.name':'ناشر','cover':'نوع جلد',
                                 'ghate':'قطع'}
+    ## slider 
+    st.text('search shamsi date:')
+    values_shamsi = st.slider('Select a range of date shamsi',1380, 1390, (1350,1410),step=1)
+    st.text('search miladi date:')
+    values_miladi = st.slider('Select a range of date miladi',1950, 2030, (1950,2030),step=1)
+    st.text('search price:')
+    price = st.slider('Select a range of price',1000, 1000000, (1000,1000000),step=1000)
+    ## select box
+    #publisher
+    cursor.execute("select name from publisher")
+    publisher = cursor.fetchall()
+    options_publisher =["انتشارات همه"]+[f"{i[0]}" for i in publisher] 
+    selected_publisher = st.selectbox("Select an publisher", options_publisher)
+    #cover
+    cursor.execute("select cover from book group by cover")
+    cover = cursor.fetchall()
+    options_cover =["همه جلدها"]+[f"{i[0]}" for i in cover] 
+    selected_cover = st.selectbox("Select an cover", options_cover)
+    #ghate
+    cursor.execute("select ghate from book group by ghate")
+    ghate = cursor.fetchall()
+    options_ghate =["همه قطع"]+[f"{i[0]}" for i in ghate] 
+    selected_ghate = st.selectbox("Select an ghate", options_ghate)
     if fields_book ==[]:
         list_search ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
                             'release_year_mi':'سال انتشار میلادی','release_year_sh':'سال انتشار شمسی',
@@ -319,12 +341,21 @@ with tab2:
                 if field == v:
                     list_search[k] = field
     # search all
-    base_query ="SELECT code,title_persian,title_english,release_year_sh,release_year_mi,\
+    base_query =f"SELECT code,title_persian,title_english,price,release_year_sh,release_year_mi,\
             cover,ghate,p.name as publisher,p2.name as person,role\
             FROM book inner join book_publisher bp on book.code = bp.book_code\
             inner join publisher p on bp.publisher_id = p.id\
             inner join  crew c on book.code = c.book_code\
-            inner join  person p2 on c.person_counter = p2.id WHERE "
+            inner join  person p2 on c.person_counter = p2.counter WHERE release_year_sh BETWEEN {int(values_shamsi[0])} AND {int(values_shamsi[1])} and \
+                release_year_mi BETWEEN {int(values_miladi[0])} AND {int(values_miladi[1])} and \
+                price BETWEEN {int(price[0])} AND {int(price[1])} and "
+    # search box query
+    if selected_publisher !="انتشارات همه":
+        base_query = base_query + f" p.name = '{selected_publisher}' and "
+    if selected_cover != 'همه جلدها':
+        base_query = base_query + f" cover = '{selected_cover}' and "
+    if selected_ghate != 'همه قطع':
+        base_query = base_query + f" ghate = '{selected_ghate}' and "    
     i = 0
     where_query = " "
     for k, v in list_search.items():
@@ -338,14 +369,14 @@ with tab2:
         else:
             where_query = " " + where_query +f" {k} LIKE '%{text_search}%' "                
         if len(list_search) != i: 
-            where_query = where_query +" "+ "or"+" "
+            where_query = where_query +" "+ "and"+" "
     query = base_query +where_query
     st.header('filter book')
     cursor.execute(query+""+"limit 20")
     result = cursor.fetchall()
     df = pd.DataFrame(
             result,
-                columns=("code","title_persian","title_english",
+                columns=("code","title_persian","title_english","price",
                         "release_year_sh","release_year_mi",
                         "cover","ghate","publisher",
                         "person","role"))
