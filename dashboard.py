@@ -151,7 +151,7 @@ with tab1:
             # plot question 4
             st.header('count writer book')
             cursor.execute(f"select name , count(*) as book_code from crew \
-                           inner join person p on crew.person_counter = p.id\
+                           inner join person p on crew.person_counter = p.counter\
                                where role ='writer'group by name \
                                order by book_code desc limit 10")
             result = cursor.fetchall()
@@ -179,7 +179,7 @@ with tab1:
             # plot question 5
             st.header('count translator book')
             cursor.execute(f"select name , count(*) as book_code from crew \
-                           inner join person p on crew.person_counter = p.id\
+                           inner join person p on crew.person_counter = p.counter\
                                where role ='translator'group by name \
                                order by book_code desc limit 10")
             result = cursor.fetchall()
