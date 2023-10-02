@@ -255,7 +255,8 @@ def hypothesis_writer_num_of_books_page_count():
         JOIN book on crew.book_code = book.code
         JOIN group_book on book.code = group_book.book_code
         JOIN `group`
-        WHERE role = 'writer') as book_writer;
+        WHERE role = 'writer') as book_writer
+    ORDER BY total_book DESC ;
     '''
     return pd.read_sql(query, conn)
 
