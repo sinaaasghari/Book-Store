@@ -261,7 +261,7 @@ def hypothesis_writer_num_of_books_page_count():
     return pd.read_sql(query, conn)
 
 #hypothesis seventh (extra)
-def hyothesis_page_count_price():
+def hypothesis_page_count_price():
     query = '''
     select DISTINCT group_id, first_value(book.title_persian) over (partition by group_id) as title, AVG(page_count) over (partition by group_id) as page_count,
            AVG(grade) over (partition by group_id) as grade
