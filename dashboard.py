@@ -296,11 +296,16 @@ with tab1:
                 titleFontSize=16)
             st.altair_chart(chart, use_container_width=True)
 with tab2:
-    text_search = st.text_input('text to search')
+    text_search = st.text_input('text to search title')
     fields_book = st.multiselect(
     'search fields',
-    ['عنوان فارسی', 'عنوان انگلیسی', 'نویسنده', 'مترجم'],
+    ['عنوان فارسی', 'عنوان انگلیسی'],
     ['عنوان فارسی'])
+    text_search_person = st.text_input('text to search person ')
+    fields_book_person = st.multiselect(
+    'search fields',
+    ['نویسنده', 'مترجم'],
+    ['نویسنده'])
     change_persion_to_English ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
                                 'person_writer':'نویسنده','person_translator': 'مترجم',
                                 }
@@ -327,15 +332,17 @@ with tab2:
     ghate = cursor.fetchall()
     options_ghate =["همه قطع"]+[f"{i[0]}" for i in ghate] 
     selected_ghate = st.selectbox("Select an ghate", options_ghate)
-    if fields_book ==[]:
+    ###
+    field_book_all =fields_book +fields_book_person
+    if field_book_all ==[]:
         list_search ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
-                            'release_year_mi':'سال انتشار میلادی','release_year_sh':'سال انتشار شمسی',
                             'person_writer':'نویسنده','person_translator': 'مترجم',
-                            'p.name':'ناشر','cover':'نوع جلد',
-                            'ghate':'قطع'}
+                        }
     else:
         list_search ={}
-        for field in fields_book:
+        field_book_all =fields_book +fields_book_person
+        print(field_book_all)
+        for field in field_book_all:
             for k, v in change_persion_to_English.items():
                 if field == v:
                     list_search[k] = field
@@ -357,13 +364,14 @@ with tab2:
         base_query = base_query + f" ghate = '{selected_ghate}' and "    
     i = 0
     where_query = " "
+    print(list_search)
     for k, v in list_search.items():
         i= i + 1
         if k == "person_translator":
-            where_query = " " + where_query +f" p2.name LIKE '%{text_search}%' "+" "+ "and"+" "                
+            where_query = " " + where_query +f" p2.name LIKE '%{text_search_person}%' "+" "+ "and"+" "                
             where_query = " " + where_query +f"role = 'translator'" +" "               
         elif k == "person_writer":
-            where_query = " " + where_query +f" p2.name LIKE '%{text_search}%' "+" "+ "and"+" "                
+            where_query = " " + where_query +f" p2.name LIKE '%{text_search_person}%' "+" "+ "and"+" "                
             where_query = " " + where_query +f"role = 'writer'" +" "
         else:
             where_query = " " + where_query +f" {k} LIKE '%{text_search}%' "                
