@@ -353,19 +353,17 @@ with tab2:
             
 with tab3:
     col1, col2 = st.columns([1, 3])
-
+    
     with col1:
-        type=st.radio(
-            "Analytical charts Extra",
-            key="Analytical charts Extra",
-            options=["Extra1",
-                    "number_2","number_3", 'part4',
-                    "part5" , "part6", "part7" ,
-                    "part8" , "part9", "part10"])
+                type=st.selectbox(
+                    "Analytical charts",
+                    key="Analytical charts_part3",
+                    options=["1. The most expensive publisher","2. The most active publishers",
+                             "3. variety of Writers VS Grade" , "4. variety of Publish VS Grade"])
     with col2:
-        # Extra_part1
-        if type == "Extra1":
-            cursor.execute(f"Select name as Publisher_name , AVG(price) as Price from(\
+                if type == "1. The most expensive publisher":
+                    # plot question 1
+                    cursor.execute(f"Select name as Publisher_name , AVG(price) as Price from(\
                            SELECT name as name_new  , COUNT(DISTINCT title_persian) AS BookCount FROM book\
                            join book_publisher on book_publisher.book_code = book.code\
                            join publisher on book_publisher.publisher_id = publisher.id GROUP BY name\
@@ -375,324 +373,127 @@ with tab3:
                            join book on book_publisher.book_code = book.code\
                            group by book_publisher_with_more_than_ten.name_new\
                            order by price DESC limit 10;")
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
+                    result = cursor.fetchall() 
+                    df = pd.DataFrame(result,
                         columns=("Publisher_name","Price"))
-            df['Price'] = df['Price'].astype(int)
-            name_list = list(df['Publisher_name'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('Price', title="متوسط قیمت"),
-                y=alt.Y('Publisher_name', title="نام انتشارات", sort=name_list)).properties(
-                width=600,
-                height=400).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-        # Extra_part2
-        elif type == "number_2":
-            category = st.selectbox('category',('ژاپن','انگلیس','فرانسه',
-                                                'ایرلند','هند','استرالیا','آفریقا','اروپا'
-                                                'یونان','ایران','آمریکای لاتین','عرب'))
-            
-            cursor.execute(f"select person.name , count(DISTINCT crew.book_code) as count from crew\
-            join person on crew.person_counter = person.id\
-            join book on crew.book_code = book.code\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            where person.id is not NULL and person.name!='مجموعه ی نویسندگان' and\
-            person.name!='مجموعه ی مترجمان' and crew.role = 'writer' and category.name = 'ادبیات {category}'\
-                           group by person.name order by count DESC\
-                           limit 5;")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
-                        columns=("writer_name","count"))
-            df['count'] = df['count'].astype(int)
-            name_list = list(df['writer_name'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('count', title="تعداد کتاب"),
-                y=alt.Y('writer_name', title="نام نویسنده", sort=name_list)).properties(
-                width=600,
-                height=400).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-        # Extra_part3
-        elif type == "number_3":
-            cursor.execute(f"select  category.name ,count(distinct person.person_id) as num from crew\
-            join person on crew.person_counter = person.counter\
-            join book on crew.book_code = book.code\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            where category.name like '%جایزه%'\
-            group by category.name\
-            order by num DESC\
-            limit 10;")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
-                        columns=("award_name","count"))
-            df['count'] = df['count'].astype(int)
-            
-            name_list = list(df['award_name'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('count', title="تعداد برندگان"),
-                y=alt.Y('award_name', title="نام جایزه", sort=name_list)).properties(
-                width=800,
-                height=500).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-            
-        # Extra_part4
-        elif type == "part4":
-            cursor.execute(f"SELECT category.name , count(DISTINCT uo.title_persian) as count from (\
-            SELECT book.title_persian from book\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            where category.name like '%نوبل%'\
-            )as uo\
-            join book on uo.title_persian = book.title_persian\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            where category.name like '%داستان %'\
-            group by category.name\
-            order by count DESC;")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
-                        columns=("type","count"))
-            df['count'] = df['count'].astype(int)
-            
-            name_list = list(df['type'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('count', title="تعداد برندگان"),
-                y=alt.Y('type', title="سبک داستانی", sort=name_list)).properties(
-                width=800,
-                height=500).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-            
-        # Extra_part5
-        elif type == "part5":
-            cursor.execute(f"SELECT cover , avg(price) as mean_price from book\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            join crew on book.code = crew.book_code\
-            join person on crew.person_counter = person.counter\
-            where cover is not NULL\
-            group by cover\
-            order by mean_price DESC ")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
-                        columns=("cover_type","price"))
-            df['price'] = df['price'].astype(int)
-            
-            name_list = list(df['cover_type'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('price', title="متوسط قیمت"),
-                y=alt.Y('cover_type', title="نوع جلد", sort=name_list)).properties(
-                width=800,
-                height=500).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-        # Extra_part6
-        elif type == "part6":
-            cursor.execute(f"SELECT category.name , avg(grade) as mean_price from book\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            join crew on book.code = crew.book_code\
-            join person on crew.person_counter = person.counter\
-            where category.name in ('داستان حماسی','داستان درام','داستان تاریخی',\
-                        'داستان ماوراء الطبیعه','داستان علمی تخیلی','داستان عاشقانه'\
-                       'داستان عرفانی','داستان فلسفی','داستان جنگی','داستان سیاسی','داستان فانتزی'\
-                       ,'داستان معمایی','داستان کمدی (طنز)',\
-                       'داستان روانشناسانه','داستان کوتاه','داستان کوتاه','داستان اجتماعی'\
-                       )\
-            group by category.name\
-            order by mean_price DESC ;")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
-                        columns=("book_type","grade"))
-            df['grade'] = df['grade'].astype(float)
-            
-            name_list = list(df['book_type'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('grade', title="متوسط نمرات"),
-                y=alt.Y('book_type', title="انواع ادبیات داستانی", sort=name_list)).properties(
-                width=800,
-                height=500).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-        # Extra_part7
-        elif type == "part7":
-            cursor.execute(f"SELECT category.name , avg(price) as mean_price from book\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            join crew on book.code = crew.book_code\
-            join person on crew.person_counter = person.counter\
-            where category.name in ('داستان حماسی','داستان درام','داستان تاریخی',\
-                        'داستان ماوراء الطبیعه','داستان علمی تخیلی','داستان عاشقانه'\
-                       'داستان عرفانی','داستان فلسفی','داستان جنگی','داستان سیاسی','داستان فانتزی'\
-                       ,'داستان معمایی','داستان کمدی (طنز)',\
-                       'داستان روانشناسانه','داستان کوتاه','داستان کوتاه','داستان اجتماعی'\
-                       )\
-            group by category.name\
-            order by mean_price DESC ;")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
-                        columns=("book_type","price"))
-            df['price'] = df['price'].astype(float)
-            
-            name_list = list(df['book_type'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('price', title="متوسط قیمت"),
-                y=alt.Y('book_type', title="انواع ادبیات داستانی", sort=name_list)).properties(
-                width=800,
-                height=500).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-            
-                # Extra_part8
-        elif type == "part8":
-            cursor.execute(f"SELECT category.name, count(distinct publisher.name)  as numb from book\
-            join book_publisher on book.code = book_publisher.book_code\
-            join publisher on book_publisher.publisher_id = publisher.id\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            join crew on book.code = crew.book_code\
-            join person on crew.person_counter = person.counter\
-            where category.name not like '%میلادی%'\
-            group by category.name\
-            order by numb DESC\
-            limit 10;")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
-                        columns=("category","numb"))
-            df['numb'] = df['numb'].astype(int)
-            
-            name_list = list(df['category'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('numb', title="تعداد ناشر"),
-                y=alt.Y('category', title="برچسب", sort=name_list)).properties(
-                width=800,
-                height=500).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-            
-        # Extra_part9
-        elif type == "part9":
-            cursor.execute(f"SELECT category.name, count(distinct person.person_id)  as numb from book\
-            join book_publisher on book.code = book_publisher.book_code\
-            join publisher on book_publisher.publisher_id = publisher.id\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            join crew on book.code = crew.book_code\
-            join person on crew.person_counter = person.counter\
-            where category.name not like '%میلادی%' and crew.role = 'translator'\
-            group by category.name\
-            order by numb DESC\
-            limit 10;")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
-                        columns=("category","numb"))
-            df['numb'] = df['numb'].astype(int)
-            
-            name_list = list(df['category'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('numb', title="تعداد مترجم"),
-                y=alt.Y('category', title="برچسب", sort=name_list)).properties(
-                width=800,
-                height=500).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
-            
-        # Extra_part10
-        elif type == "part10":
-            cat = st.selectbox('ادبیات داستانی',('اجتماعی','وحشت','علمی','درام','تاریخی','فلسفی','جنگی','جنایی','سیاسی','ماجرایی','معمایی','عاشقانه'))
-            cursor.execute(f"SELECT publisher.name, count(book.code)  as numb from book\
-            join book_publisher on book.code = book_publisher.book_code\
-            join publisher on book_publisher.publisher_id = publisher.id\
-            join group_book on book.code = group_book.book_code\
-            join `group` on group_book.group_id = `group`.id\
-            join group_category on `group`.id = group_category.group_id\
-            join category on group_category.category_id = category.id\
-            join crew on book.code = crew.book_code\
-            join person on crew.person_counter = person.counter\
-            where category.name = 'داستان {cat}'\
-            group by publisher.name\
-            order by numb DESC\
-            limit 10;")            
-            result = cursor.fetchall() 
-            df = pd.DataFrame(
-                    result,
+                    df['Price'] = df['Price'].astype(int)
+                    name_list = list(df['Publisher_name'])
+                    st.title('bar chart')
+                    chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
+                        x=alt.X('Price', title="متوسط قیمت"),
+                        y=alt.Y('Publisher_name', title="نام انتشارات", sort=name_list)).properties(
+                        width=600,
+                        height=400)
+                    st.altair_chart(chart, use_container_width=True)
+
+                elif type == "2. The most active publishers":
+                    cat = st.selectbox('ادبیات داستانی',('اجتماعی','وحشت','علمی','درام','تاریخی','فلسفی','جنگی','جنایی','سیاسی','ماجرایی','معمایی','عاشقانه'))
+                    cursor.execute(f"SELECT publisher.name, count(book.code)  as numb from book\
+                    join book_publisher on book.code = book_publisher.book_code\
+                    join publisher on book_publisher.publisher_id = publisher.id\
+                    join group_book on book.code = group_book.book_code\
+                    join `group` on group_book.group_id = `group`.id\
+                    join group_category on `group`.id = group_category.group_id\
+                    join category on group_category.category_id = category.id\
+                    join crew on book.code = crew.book_code\
+                    join person on crew.person_counter = person.counter\
+                    where category.name = 'داستان {cat}'\
+                    group by publisher.name\
+                    order by numb DESC\
+                    limit 10;")            
+                    result = cursor.fetchall() 
+                    df = pd.DataFrame(
+                        result,
                         columns=("pub","numb"))
-            df['numb'] = df['numb'].astype(int)
-            
-            name_list = list(df['pub'])
-            #plot
-            st.title('bar chart')
-            chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
-                x=alt.X('numb', title="تعداد کتاب"),
-                y=alt.Y('pub', title="ناشر", sort=name_list)).properties(
-                width=800,
-                height=500).configure_axis(
-                labelFontSize=16,
-                titleFontSize=16)
-            st.altair_chart(chart, use_container_width=True)
+                    df['numb'] = df['numb'].astype(int)
+                    name_list = list(df['pub'])
+                    st.title('bar chart')
+                    chart = alt.Chart(df).mark_bar(color='#3182bd').encode(
+                        x=alt.X('numb', title="تعداد کتاب"),
+                        y=alt.Y('pub', title="ناشر", sort=name_list)).properties(
+                        width=800,
+                        height=500)
+                    st.altair_chart(chart, use_container_width=True)
+                    
+                elif type == "3. variety of Writers VS Grade":
+                    cursor.execute(f"SELECT release_year_sh , AVG(grade) as num from book\
+                                   join crew on book.code = crew.book_code\
+                                   where release_year_sh is not NULL and release_year_sh<1402 and release_year_sh>1369\
+                                   group by release_year_sh\
+                                   order by release_year_sh DESC")
+                    result = cursor.fetchall() 
+                    df = pd.DataFrame(
+                        result,
+                        columns=("year","grade"))
+                    df['grade'] = df['grade'].astype(float)
+                    name_list = list(df['year'])
+                    cursor.execute(f"SELECT release_year_sh , count(distinct crew.id) as num from book\
+                                   join crew on book.code = crew.book_code\
+                                   where release_year_sh is not NULL and release_year_sh<1402 and release_year_sh>1369\
+                                   and release_year_sh>1359 and crew.role = 'writer'\
+                                   group by release_year_sh\
+                                   order by release_year_sh DESC")
+                    result_2 = cursor.fetchall() 
+                    df_2 = pd.DataFrame(
+                        result_2,
+                        
+                        columns=("year","count_writer"))
+                    df_2['count_writer'] = df_2['count_writer'].astype(int)
+                    name_list = list(df['year'])
+                    cursor.execute(f"SELECT release_year_sh , count(distinct crew.id) as num from book\
+                                   join crew on book.code = crew.book_code\
+                                   where release_year_sh is not NULL and release_year_sh<1402 and release_year_sh>1369 \
+                                   and release_year_sh>1359 and crew.role = 'translator'\
+                                   group by release_year_sh\
+                                   order by release_year_sh DESC")
+                    result_3 = cursor.fetchall() 
+                    df_3 = pd.DataFrame(
+                        result_3,
+                        columns=("year","count_translator"))
+                    df_3['count_translator'] = df_3['count_translator'].astype(int)
+                    
+                    st.title('line')
+                    line1 = alt.Chart(df).mark_line().encode(
+                        x=alt.X('year', title="سال انتشار"),
+                        y=alt.Y('grade', title="متوسط نمره", sort=name_list))
+                    line2 = alt.Chart(df_2).mark_line(color='red').encode(
+                        x=alt.X('year', title="سال انتشار"),
+                        y=alt.Y('count_writer', title="نوع جلد", sort=name_list))
+                    line3 = alt.Chart(df_3).mark_line(color='green').encode(
+                        x=alt.X('year', title="سال انتشار"),
+                        y=alt.Y('count_translator', title="نوع جلد", sort=name_list))
+                    chart = alt.layer(line1, line2,line3).resolve_scale(y='independent')
+                    st.altair_chart(chart, use_container_width=True)
+                    
+                elif type == "4. variety of Publish VS Grade":
+                    cursor.execute(f"SELECT title_english , COUNT(DISTINCT publisher.name) AS NumBooks, AVG(grade) AS AvgRating\
+                                   FROM book\
+                                   join book_publisher on book.code = book_publisher.book_code\
+                                   join publisher on book_publisher.publisher_id = publisher.id\
+                                   join group_book on book.code = group_book.book_code\
+                                   join `group` on group_book.group_id = `group`.id\
+                                   join group_category on `group`.id = group_category.group_id\
+                                   join category on group_category.category_id = category.id\
+                                   join crew on book.code = crew.book_code\
+                                   join person on crew.person_counter = person.counter\
+                                   where title_english is not NULL\
+                                   GROUP BY title_english\
+                                   order by NumBooks DESC\
+                                   limit 10;")
+                    result = cursor.fetchall() 
+                    df = pd.DataFrame(
+                        result,
+                        columns=("num","grade"))
+                    df['grade'] = df['grade'].astype(float)
+                    #name_list = list(df['year'])
+                    st.title('line')
+                    scatter_plot = sns.scatterplot(data=df, x='num', y='grade')
+                    scatter_plot.set_xlabel('Year', fontname='Times New Roman', fontsize=14)
+                    scatter_plot.set_ylabel('Page', fontname='Times New Roman', fontsize=14)
+                    plt.xticks(fontname='Times New Roman')
+                    plt.yticks(fontname='Times New Roman')
+                    #plt.ylim(0, 500)
+                    sns.despine()
+                    #plt.xlim(1360,1403)
+                    plt.legend()
+                    st.pyplot(scatter_plot.figure)
