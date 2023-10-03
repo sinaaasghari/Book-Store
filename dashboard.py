@@ -14,8 +14,8 @@ import matplotlib.font_manager as fm
 conn = mysql.connector.connect(
     host='localhost',
     user='root',
-    password='13771377Mnn@',
-    database='book_store'
+    password='zaq1ZAQ!',
+    database='book-store'
 )
 
 cursor = conn.cursor()
@@ -304,7 +304,7 @@ with tab2:
     text_search_person = st.text_input('text to search person ')
     fields_book_person = st.multiselect(
     'search fields',
-    ['نویسنده', 'مترجم'])
+    ['نویسنده', 'مترجم'], ['نویسنده'])
     change_persion_to_English ={'title_persian':'عنوان فارسی','title_english': 'عنوان انگلیسی',
                                 'person_writer':'نویسنده','person_translator': 'مترجم',
                                 }
@@ -347,7 +347,7 @@ with tab2:
                 if field == v:
                     list_search[k] = field
     # search all
-    base_query =f"SELECT code,title_persian,title_english,price,exist,release_year_sh,release_year_mi,\
+    base_query =f"SELECT DISTINCT code,title_persian,title_english,price,exist,release_year_sh,release_year_mi,\
             cover,ghate,p.name as publisher,p2.name as person,role\
             FROM book inner join book_publisher bp on book.code = bp.book_code\
             inner join publisher p on bp.publisher_id = p.id\
