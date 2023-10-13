@@ -1,5 +1,5 @@
 # Roshanan Café-Bookstore Data Analysis Project
-Quera Data Analysis Bootcamp / Fall 2023
+Quera Data Analysis Bootcamp / Fall 2023 / Team G2
 
 ## 📌 Introduction
 
@@ -67,7 +67,9 @@ Your contributions and suggestions are heartily♡ welcome, be it small or big, 
 ## 🙏 Acknowledgments
 
 - **Roshanan Café** for providing the inspiration and valuable data.
+- [**Iran Ketab**](https://iranketab.ir/) for providing the crawlable data.
 - Open-source libraries and tools used in this project.
+- Mentor: [Sina Asghari](https://github.com/sinaaasghari) for his wisdom in leading and mentoring the team
 - Contributors: [Kaveh](https://github.com/kvmmn), [Ali](https://github.com/aliNzmv), [Amir](https://github.com/AmirRezaei-2023), and [Mohamad](https://github.com/MohammadNasimi) for their diligent work and dedication.
 
 
