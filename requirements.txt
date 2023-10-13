@@ -1,0 +1,15 @@
+requests
+bs4
+pandas
+numpy
+futures
+persiantools
+streamlit
+MySQL-python
+matplotlib
+altair
+seaborn
+plotly-express
+sqlalchemy
+scikit-learn
+scipy
