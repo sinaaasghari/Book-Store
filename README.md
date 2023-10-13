@@ -70,7 +70,7 @@ Your contributions and suggestions are heartily♡ welcome, be it small or big, 
 - [**Iran Ketab**](https://iranketab.ir/) for providing the crawlable data.
 - Open-source libraries and tools used in this project.
 - Mentor: [Sina Asghari](https://github.com/sinaaasghari) for his wisdom in leading and mentoring the team
-- Contributors: [Kaveh](https://github.com/kvmmn), [Ali](https://github.com/aliNzmv), [Amir](https://github.com/AmirRezaei-2023), and [Mohamad](https://github.com/MohammadNasimi) for their diligent work and dedication.
+- Contributors: [Ali](https://github.com/aliNzmv), [Amir](https://github.com/AmirRezaei-2023), [Mohamad](https://github.com/MohammadNasimi), and [Kaveh](https://github.com/kvmmn) for their diligent work and dedication.
 
 
 ---
